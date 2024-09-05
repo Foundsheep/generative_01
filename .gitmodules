@@ -1,0 +1,3 @@
+[submodule "training_part/diffusers"]
+	path = training_part/diffusers
+	url = https://github.com/huggingface/diffusers

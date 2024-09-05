@@ -8,7 +8,7 @@ def main():
     
     trainer = L.Trainer(
         accelerator="gpu",
-        devices=1,
+        devices=2,
         max_epochs=2,
     )
 

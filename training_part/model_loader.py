@@ -46,7 +46,7 @@ class SPRDiffusionModel(L.LightningModule):
         # encoder_hidden_states = torch.randn((images.size()[0], 1000, 1280)).cuda()
         
         # residual = self.model(noisy_images, steps, encoder_hidden_states=encoder_hidden_states, class_labels=conditions)
-        unet_2d_outputs = self.model(noisy_images, steps, conditions, class_embed_type="vector")
+        unet_2d_outputs = self.model(noisy_images, steps, conditions)
         residual = unet_2d_outputs.sample
         
         loss = torch.nn.functional.mse_loss(residual, noise)

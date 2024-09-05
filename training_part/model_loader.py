@@ -17,7 +17,7 @@ class SPRDiffusionModel(L.LightningModule):
     def __init__(self):
         super().__init__()
         self.model = diffusers.models.UNet2DConditionModel(
-            sample_size=(Config.TARGET_HEIGHT, Config.TARGET_WIDTH),
+            sample_size=(int(Config.TARGET_HEIGHT / 8), int(Config.TARGET_WIDTH / 8)),
             in_channels=3,
             out_channels=3,
             class_embed_type="simple_projection",

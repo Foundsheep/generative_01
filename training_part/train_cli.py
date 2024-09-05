@@ -1,8 +1,12 @@
+import torch
 import lightning as L
 from data_loader import SPRDiffusionDataModule
 from model_loader import SPRDiffusionModel
 
 def main():
+    # GPU performance increases!
+    torch.set_float32_matmul_precision('medium')
+    
     model = SPRDiffusionModel()
     dm = SPRDiffusionDataModule()
     

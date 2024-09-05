@@ -23,7 +23,7 @@ from utils.image_utils import get_transforms
 class SPRDiffusionDataset(torch.utils.data.Dataset):
     def __init__(self, is_train=True):
         super().__init__()
-        self.ds = load_dataset("DJMoon/hm_spr_1_2")["train"]
+        self.ds = load_dataset("DJMoon/hm_spr_1_2_resized")["train"]
         self.transforms = get_transforms()
         self.is_train = is_train
         
@@ -36,7 +36,6 @@ class SPRDiffusionDataset(torch.utils.data.Dataset):
         num_plates = self.ds[idx]["num_plates"]
         types = self.ds[idx]["types"]
         
-        print(f"========== {type(image)}")                
         if self.transforms:
             if self.is_train:
                 image = self.transforms["images"]["train"](image=image)["image"]
@@ -44,12 +43,10 @@ class SPRDiffusionDataset(torch.utils.data.Dataset):
                 image = self.transforms["images"]["val"](image=image)["image"]
         
         image = image.float()
-        print(f"========== {type(image)}")                
         num_plates = torch.Tensor([num_plates])
         types = torch.Tensor([0] if types == "HM" else [1])
         
         conditions = torch.concat([num_plates, types], axis=0)
-        print(f"========== {conditions}")        
         return image, conditions
     
     def _adjust_ratio_and_convert_to_numpy(self, img):
@@ -95,13 +92,13 @@ class SPRDiffusionDataModule(L.LightningDataModule):
         super().__init__()
         
     def prepare_data(self):
-        load_dataset("DJMOON/hm_spr_1_2")
+        load_dataset("DJMOON/hm_spr_1_2_resized")
         
     def setup(self, stage):
         self.ds = SPRDiffusionDataset()
         
     def train_dataloader(self):
-        return torch.utils.data.DataLoader(self.ds, batch_size=1, shuffle=True)
+        return torch.utils.data.DataLoader(self.ds, batch_size=4, shuffle=True)
 
 if __name__ == "__main__":
     spr_ds = SPRDiffusionDataset()

@@ -21,26 +21,18 @@ from configs import Config
 
 
 class SPRDiffusionModel(L.LightningModule):
-    def __init__(self):
+    def __init__(self, lr, num_class_embeds):
         super().__init__()
-        # self.model = diffusers.models.UNet2DConditionModel(
-        #     sample_size=(int(Config.TARGET_HEIGHT / 8), int(Config.TARGET_WIDTH / 8)),
-        #     in_channels=3,
-        #     out_channels=3,
-        #     class_embed_type="simple_projection",
-        #     projection_class_embeddings_input_dim=2,
-        # )
-        
+        self.lr = lr
+        self.num_class_embeds = num_class_embeds
         self.model = diffusers.models.UNet2DModel(
             sample_size=(240, 320),
             class_embed_type="vector",
-            num_class_embeds=2,
+            num_class_embeds=self.num_class_embeds,
         )
         
-        print(f"====== {self.model.config.class_embed_type}")
-        
         self.scheduler = diffusers.schedulers.DDPMScheduler()
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1, gamma=0.99)
         
         
@@ -79,7 +71,7 @@ class SPRDiffusionModel(L.LightningModule):
         
         checkpoint = ModelCheckpoint(
             monitor="train_loss",
-            filename="{epoch}-{step}-{train_loss:.3f}"
+            filename="{epoch}-{step}-{train_loss:.4f}"
         )
         
         callbacks.append(checkpoint)

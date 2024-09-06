@@ -21,9 +21,9 @@ from utils.image_utils import get_transforms
 
 
 class SPRDiffusionDataset(torch.utils.data.Dataset):
-    def __init__(self, is_train=True):
+    def __init__(self, hf_dataset_repo, is_train):
         super().__init__()
-        self.ds = load_dataset("DJMoon/hm_spr_1_2_resized")["train"]
+        self.ds = load_dataset(hf_dataset_repo)["train"]
         self.transforms = get_transforms()
         self.is_train = is_train
         
@@ -88,20 +88,30 @@ class SPRDiffusionDataset(torch.utils.data.Dataset):
         
 
 class SPRDiffusionDataModule(L.LightningDataModule):
-    def __init__(self):
+    def __init__(self, hf_dataset_repo, batch_size, shuffle, dl_num_workers):
         super().__init__()
+        self.hf_dataset_repo = hf_dataset_repo,
+        self.batch_size = batch_size,
+        self.shuffle = shuffle
+        self.dl_num_workers = dl_num_workers
         
     def prepare_data(self):
-        load_dataset("DJMOON/hm_spr_1_2_resized")
+        load_dataset(self.hf_dataset_repo)
         
     def setup(self, stage):
-        self.ds = SPRDiffusionDataset()
+        if stage == "fit":
+            self.ds_train = SPRDiffusionDataset(self.hf_dataset_repo, True)
+            
+        self.ds = SPRDiffusionDataset(self.hf_dataset_repo, True)
         
     def train_dataloader(self):
-        return torch.utils.data.DataLoader(self.ds, batch_size=4, shuffle=True, num_workers=2)
+        return torch.utils.data.DataLoader(
+            self.ds_train, batch_size=self.batch_size,
+            shuffle=self.shuffle, num_workers=self.dl_num_workers
+        )
 
 if __name__ == "__main__":
-    spr_ds = SPRDiffusionDataset()
+    spr_ds = SPRDiffusionDataset(Config.HF_DATASET_REPO, True)
     dl = torch.utils.data.DataLoader(spr_ds, batch_size=5, shuffle=True, num_workers=2)
 
     d = next(iter(dl))

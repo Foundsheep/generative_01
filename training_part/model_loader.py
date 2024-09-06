@@ -30,6 +30,8 @@ class SPRDiffusionModel(L.LightningModule):
             num_class_embeds=2,
         )
         
+        print(f"====== {self.model.config.class_embed_type}")
+        
         self.scheduler = diffusers.schedulers.DDPMScheduler()
         self.optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1, gamma=0.99)

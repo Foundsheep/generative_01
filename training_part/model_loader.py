@@ -4,12 +4,15 @@ from pathlib import Path
 root = Path.cwd().absolute().parent
 print(root)
 training_part = root / "training_part"
+print(training_part)
 if str(root) not in sys.path:
     sys.path.append(str(root))
 if str(training_part) not in sys.path:
     sys.path.append(str(training_part))
+
+print(f"========\n\t\t{sys.path}\n========")
     
-import diffusers
+import diffusers.src.diffusers as diffusers
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint
 import torch

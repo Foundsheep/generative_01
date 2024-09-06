@@ -98,11 +98,11 @@ class SPRDiffusionDataModule(L.LightningDataModule):
         self.ds = SPRDiffusionDataset()
         
     def train_dataloader(self):
-        return torch.utils.data.DataLoader(self.ds, batch_size=4, shuffle=True)
+        return torch.utils.data.DataLoader(self.ds, batch_size=4, shuffle=True, num_workers=2)
 
 if __name__ == "__main__":
     spr_ds = SPRDiffusionDataset()
-    dl = torch.utils.data.DataLoader(spr_ds, batch_size=5, shuffle=True)
+    dl = torch.utils.data.DataLoader(spr_ds, batch_size=5, shuffle=True, num_workers=2)
 
     d = next(iter(dl))
     

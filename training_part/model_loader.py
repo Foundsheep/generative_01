@@ -1,14 +1,18 @@
+import sys
+from pathlib import Path
+
+root = Path.cwd().absolute().parent
+print(root)
+training_part = root / "training_part"
+if str(root) not in sys.path:
+    sys.path.append(str(root))
+if str(training_part) not in sys.path:
+    sys.path.append(str(training_part))
+    
 import diffusers
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint
 import torch
-import sys
-from pathlib import Path
-
-curdir = Path.cwd().absolute().parent / "training_part"
-print(curdir)
-if str(curdir) not in sys.path:
-    sys.path.append(str(curdir))
     
 from configs import Config
 

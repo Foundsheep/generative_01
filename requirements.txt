@@ -27,7 +27,7 @@ datasets==2.21.0
 debugpy==1.8.5
 decorator==5.1.1
 defusedxml==0.7.1
--e git+https://github.com/huggingface/diffusers.git@007ad0e2aa792a192a100cf0dcb0e100225fd486#egg=diffusers
+# -e git+https://github.com/huggingface/diffusers.git@007ad0e2aa792a192a100cf0dcb0e100225fd486#egg=diffusers
 dill==0.3.8
 eval_type_backport==0.2.0
 exceptiongroup==1.2.2

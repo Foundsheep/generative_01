@@ -90,8 +90,8 @@ class SPRDiffusionDataset(torch.utils.data.Dataset):
 class SPRDiffusionDataModule(L.LightningDataModule):
     def __init__(self, hf_dataset_repo, batch_size, shuffle, dl_num_workers):
         super().__init__()
-        self.hf_dataset_repo = hf_dataset_repo,
-        self.batch_size = batch_size,
+        self.hf_dataset_repo = hf_dataset_repo
+        self.batch_size = batch_size
         self.shuffle = shuffle
         self.dl_num_workers = dl_num_workers
         

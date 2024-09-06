@@ -43,10 +43,6 @@ class SPRDiffusionModel(L.LightningModule):
         noise = torch.randn_like(images)
         steps = torch.randint(self.scheduler.config.num_train_timesteps, (images.size(0), ), device=self.device)
         noisy_images = self.scheduler.add_noise(images, noise, steps)
-        
-        # encoder_hidden_states = torch.randn((images.size()[0], 1000, 1280)).cuda()
-        
-        # residual = self.model(noisy_images, steps, encoder_hidden_states=encoder_hidden_states, class_labels=conditions)
         unet_2d_outputs = self.model(noisy_images, steps, conditions)
         residual = unet_2d_outputs.sample
         

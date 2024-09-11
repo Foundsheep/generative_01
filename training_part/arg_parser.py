@@ -18,4 +18,9 @@ def get_args():
     parser.add_argument("--lr", type=float, default=Config.LR)
     parser.add_argument("--num_class_embeds", type=int, default=Config.NUM_CLASS_EMBEDS)
 
+    # inference
+    parser.add_argument("--checkpoint_path", type=str)
+    parser.add_argument("--num_plates", type=int)
+    parser.add_argument("--types", type=str, default=Config.TYPES)
+    
     return parser.parse_args()

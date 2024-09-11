@@ -10,14 +10,18 @@ if str(root) not in sys.path:
 if str(training_part) not in sys.path:
     sys.path.append(str(training_part))
 
+diffusers_path = training_part / "diffusers"
+print(diffusers_path)
+if str(diffusers_path) not in sys.path:
+    sys.path.append(str(diffusers_path))
 print(f"========\n\t\t{sys.path}\n========")
     
-import diffusers.src.diffusers as diffusers
+import training_part.diffusers.src.diffusers as diffusers
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint
 import torch
     
-from configs import Config
+from training_part.configs import Config
 
 
 class SPRDiffusionModel(L.LightningModule):

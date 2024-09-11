@@ -44,7 +44,9 @@ class SPRDiffusionDataset(torch.utils.data.Dataset):
         
         image = image.float()
         num_plates = torch.Tensor([num_plates])
+        num_plates = (num_plates - Config.MEAN_NUM_PLATES) / Config.STD_NUM_PLATES
         types = torch.Tensor([0] if types == "HM" else [1])
+        types = (types - Config.MEAN_TYPES) / Config.STD_TYPES
         
         conditions = torch.concat([num_plates, types], axis=0)
         return image, conditions

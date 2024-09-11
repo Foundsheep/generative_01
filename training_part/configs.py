@@ -23,6 +23,11 @@ class Config():
     LR = 0.001
     NUM_CLASS_EMBEDS = 2
     
+    MEAN_NUM_PLATES = 2.5
+    MEAN_TYPES = 0.5
+    STD_NUM_PLATES = 0.5
+    STD_TYPES = 0.5
+    
     # inference
     TYPES = "HM"
     TIMESTEPS = 1000

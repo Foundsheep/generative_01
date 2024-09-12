@@ -53,13 +53,17 @@ class SPRDiffusionModel(L.LightningModule):
         loss = torch.nn.functional.mse_loss(residual, noise)
         self.log(f"{stage}_loss", loss, prog_bar=True)
         return loss
+    
+    def forward(self, conditions):
+        batch_size = conditions.size(0)
+        noise = torch.randn(batch_size, 3, Config.RESIZED_HEIGHT, Config.RESIZED_WIDTH)
+        steps = torch.Tensor([[1000]])
+        steps = torch.concat([steps] * batch_size, axis=0)
+        return self.model(noise, steps, conditions)
 
     def training_step(self, batch, batch_idx):
         return self.shared_step(batch, "train")
-    
-    def validation_step(self, batch, batch_idx):
-        return self.shared_step(batch, "train")
-    
+
     def configure_optimizers(self):
         return {
             "optimizer": self.optimizer,

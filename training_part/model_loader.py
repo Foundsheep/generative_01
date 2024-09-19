@@ -22,7 +22,7 @@ from lightning.pytorch.callbacks import ModelCheckpoint
 import torch
     
 from training_part.configs import Config
-from ..utils.model_utils import get_scheduler
+from utils.model_utils import get_scheduler
 
 
 class SPRDiffusionModel(L.LightningModule):

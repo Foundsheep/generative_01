@@ -6,6 +6,22 @@ from data_loader import SPRDiffusionDataModule
 from model_loader import SPRDiffusionModel
 from arg_parser import get_args
 
+import sys
+from pathlib import Path
+root = Path.cwd().absolute().parent
+print(root)
+training_part = root / "training_part"
+print(training_part)
+if str(root) not in sys.path:
+    sys.path.append(str(root))
+if str(training_part) not in sys.path:
+    sys.path.append(str(training_part))
+
+diffusers_path = training_part / "diffusers"
+print(diffusers_path)
+if str(diffusers_path) not in sys.path:
+    sys.path.append(str(diffusers_path))
+print(f"========\n\t\t{sys.path}\n========")
 
 def main(args):
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -18,7 +34,8 @@ def main(args):
     
     model = SPRDiffusionModel(
         lr=args.lr,
-        num_class_embeds=args.num_class_embeds,        
+        num_class_embeds=args.num_class_embeds,
+        scheduler_name=args.scheduler_name,       
     )
     dm = SPRDiffusionDataModule(
         hf_dataset_repo=args.hf_dataset_repo,

@@ -22,5 +22,7 @@ def get_args():
     parser.add_argument("--checkpoint_path", type=str)
     parser.add_argument("--num_plates", type=int)
     parser.add_argument("--types", type=str, default=Config.TYPES)
-    
+
+    # both
+    parser.add_argument("--scheduler_name", type=str, default=Config.SCHEDULER_NAME)
     return parser.parse_args()

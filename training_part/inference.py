@@ -7,6 +7,7 @@ from data_loader import SPRDiffusionDataModule
 from model_loader import SPRDiffusionModel
 from arg_parser import get_args
 from configs import Config
+from ..utils.model_utils import get_scheduler
 
 import diffusers.src.diffusers as diffusers
 from tqdm import tqdm
@@ -17,7 +18,8 @@ from pathlib import Path
 def main(args):
     unet = SPRDiffusionModel.load_from_checkpoint(args.checkpoint_path, lr=0.001, num_class_embeds=2)
     unet.eval()
-    scheduler = diffusers.schedulers.DDPMScheduler()
+    
+    scheduler = get_scheduler(args.scheduler_name)
     
     image = torch.randn((args.batch_size, 3, Config.RESIZED_HEIGHT, Config.RESIZED_WIDTH))
     image = image.to(Config.DEVICE)

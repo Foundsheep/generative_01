@@ -22,10 +22,11 @@ from lightning.pytorch.callbacks import ModelCheckpoint
 import torch
     
 from training_part.configs import Config
+from ..utils.model_utils import get_scheduler
 
 
 class SPRDiffusionModel(L.LightningModule):
-    def __init__(self, lr, num_class_embeds):
+    def __init__(self, lr, num_class_embeds, scheduler_name):
         super().__init__()
         self.lr = lr
         self.num_class_embeds = num_class_embeds
@@ -34,8 +35,7 @@ class SPRDiffusionModel(L.LightningModule):
             class_embed_type="vector",
             num_class_embeds=self.num_class_embeds,
         )
-        
-        self.scheduler = diffusers.schedulers.DDPMScheduler()
+        self.scheduler = get_scheduler(scheduler_name)
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1, gamma=0.99)
         

@@ -22,6 +22,7 @@ class Config():
     DEVICE_NUM = 2
     LR = 0.001
     NUM_CLASS_EMBEDS = 2
+    SCHEDULER_NAME = "DDPMScheduler"
     
     MEAN_NUM_PLATES = 2.5
     MEAN_TYPES = 0.5

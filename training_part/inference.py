@@ -22,8 +22,12 @@ def main(args):
     image = torch.randn((args.batch_size, 3, Config.RESIZED_HEIGHT, Config.RESIZED_WIDTH))
     image = image.to(Config.DEVICE)
     
+    # TODO: normalisation through util. 
+    # Now, there are multiple usages of this in data_loader.py and here
     num_plates = args.num_plates
+    num_plates = (num_plates - Config.MEAN_NUM_PLATES) / Config.STD_NUM_PLATES
     types = 0 if args.types == Config.TYPES else 1
+    types = (types - Config.MEAN_TYPES) / Config.STD_TYPES
     tensor = torch.Tensor([[num_plates, types]])
     conditions = torch.concat([tensor] * args.batch_size, axis=0)
     conditions = conditions.to(Config.DEVICE)

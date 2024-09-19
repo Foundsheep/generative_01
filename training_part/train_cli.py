@@ -10,6 +10,7 @@ import sys
 from pathlib import Path
 root = Path.cwd().absolute().parent
 print(root)
+
 training_part = root / "training_part"
 print(training_part)
 if str(root) not in sys.path:
@@ -21,6 +22,12 @@ diffusers_path = training_part / "diffusers"
 print(diffusers_path)
 if str(diffusers_path) not in sys.path:
     sys.path.append(str(diffusers_path))
+
+utils_path = root / "utils"
+print(utils_path)
+if str(utils_path) not in sys.path:
+    sys.path.append(str(utils_path))
+
 print(f"========\n\t\t{sys.path}\n========")
 
 def main(args):

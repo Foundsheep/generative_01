@@ -1,4 +1,4 @@
-import ..training_part.diffusers.src.diffusers as diffusers
+import training_part.diffusers.src.diffusers as diffusers
 
 def get_scheduler(scheduler_name):
     scheduler = None

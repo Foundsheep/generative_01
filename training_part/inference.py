@@ -16,7 +16,7 @@ from pathlib import Path
 
 
 def main(args):
-    unet = SPRDiffusionModel.load_from_checkpoint(args.checkpoint_path, lr=0.001, num_class_embeds=2)
+    unet = SPRDiffusionModel.load_from_checkpoint(args.checkpoint_path, lr=0.001, num_class_embeds=2, scheduler_name=args.scheduler_name)
     unet.eval()
     
     scheduler = get_scheduler(args.scheduler_name)

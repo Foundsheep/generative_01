@@ -43,7 +43,7 @@ def main(args):
         lr=args.lr,
         num_class_embeds=args.num_class_embeds,
         scheduler_name=args.scheduler_name,
-        checkpoint_method=args.checkpoint_method,
+        checkpoint_monitor=args.checkpoint_monitor,
         checkpoint_mode=args.checkpoint_mode,
     )
     dm = SPRDiffusionDataModule(

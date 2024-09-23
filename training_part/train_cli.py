@@ -44,7 +44,7 @@ def main(args):
         num_class_embeds=args.num_class_embeds,
         scheduler_name=args.scheduler_name,
         checkpoint_monitor=args.checkpoint_monitor,
-        checkpoint_mode=args.checkpoint_mode,
+        checkpoint_mode=args.checkpoint_mode
     )
     dm = SPRDiffusionDataModule(
         hf_dataset_repo=args.hf_dataset_repo,

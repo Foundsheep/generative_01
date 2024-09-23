@@ -26,7 +26,7 @@ from utils.model_utils import get_scheduler
 
 
 class SPRDiffusionModel(L.LightningModule):
-    def __init__(self, lr, num_class_embeds, scheduler_name):
+    def __init__(self, lr, num_class_embeds, scheduler_name, checkpoint_monitor, checkpoint_mode):
         super().__init__()
         self.lr = lr
         self.num_class_embeds = num_class_embeds
@@ -36,6 +36,8 @@ class SPRDiffusionModel(L.LightningModule):
             num_class_embeds=self.num_class_embeds,
         )
         self.scheduler = get_scheduler(scheduler_name)
+        self.checkpoint_monitor = checkpoint_monitor,
+        self.checkpoint_mode = checkpoint_mode,
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1, gamma=0.99)
         
@@ -74,7 +76,9 @@ class SPRDiffusionModel(L.LightningModule):
         callbacks = []
         
         checkpoint = ModelCheckpoint(
-            monitor="train_loss",
+            save_top_k=1,
+            monitor=self.checkpoint_monitor,
+            mode=self.checkpoint_mode,
             filename="{epoch}-{step}-{train_loss:.4f}"
         )
         

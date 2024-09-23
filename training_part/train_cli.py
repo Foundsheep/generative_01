@@ -42,7 +42,9 @@ def main(args):
     model = SPRDiffusionModel(
         lr=args.lr,
         num_class_embeds=args.num_class_embeds,
-        scheduler_name=args.scheduler_name,       
+        scheduler_name=args.scheduler_name,
+        checkpoint_method=args.checkpoint_method,
+        checkpoint_mode=args.checkpoint_mode,
     )
     dm = SPRDiffusionDataModule(
         hf_dataset_repo=args.hf_dataset_repo,

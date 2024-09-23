@@ -23,8 +23,8 @@ class Config():
     LR = 0.001
     NUM_CLASS_EMBEDS = 2
     SCHEDULER_NAME = "DDPMScheduler"
-    CHECKPOINT_MONITOR = "global_step"
-    CHECKPOINT_MODE = "max"
+    CHECKPOINT_MONITOR = "train_loss"
+    CHECKPOINT_MODE = "min"
     
     MEAN_NUM_PLATES = 2.5
     MEAN_TYPES = 0.5

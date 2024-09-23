@@ -73,14 +73,16 @@ class SPRDiffusionModel(L.LightningModule):
         }
     
     def configure_callbacks(self):
-        callbacks = []
+        checkpoint_save_last = ModelCheckpoint(
+            save_last=True,
+            filename="{epoch}-{step}-{train_loss:.4f}_save_last"
+        )
         
-        checkpoint = ModelCheckpoint(
-            save_top_k=1,
-            monitor=self.checkpoint_monitor,
+        checkpoint_save_top_loss = ModelCheckpoint(
+            save_top_k=3,
+            mointor=self.checkpoint_monitor,
             mode=self.checkpoint_mode,
             filename="{epoch}-{step}-{train_loss:.4f}"
         )
         
-        callbacks.append(checkpoint)
-        return callbacks
+        return [checkpoint_save_last, checkpoint_save_top_loss]

@@ -80,7 +80,7 @@ class SPRDiffusionModel(L.LightningModule):
         
         checkpoint_save_top_loss = ModelCheckpoint(
             save_top_k=3,
-            mointor=self.checkpoint_monitor,
+            monitor=self.checkpoint_monitor,
             mode=self.checkpoint_mode,
             filename="{epoch}-{step}-{train_loss:.4f}"
         )

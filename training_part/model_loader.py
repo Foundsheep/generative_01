@@ -36,8 +36,8 @@ class SPRDiffusionModel(L.LightningModule):
             num_class_embeds=self.num_class_embeds,
         )
         self.scheduler = get_scheduler(scheduler_name)
-        self.checkpoint_monitor = checkpoint_monitor,
-        self.checkpoint_mode = checkpoint_mode,
+        self.checkpoint_monitor = checkpoint_monitor
+        self.checkpoint_mode = checkpoint_mode
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1, gamma=0.99)
         

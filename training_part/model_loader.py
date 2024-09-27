@@ -42,7 +42,9 @@ class SPRDiffusionModel(L.LightningModule):
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1, gamma=0.99)
         self.vae = diffusers.AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="vae", torch_dtype=torch.float)
-        
+        for param in self.vae.parameters():
+            param.requires_grad = False
+    
     def shared_step(self, batch, stage):
         images = batch[0]
         conditions = batch[1]

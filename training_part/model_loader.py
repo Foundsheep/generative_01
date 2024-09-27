@@ -47,7 +47,7 @@ class SPRDiffusionModel(L.LightningModule):
         images = batch[0]
         conditions = batch[1]
         
-        latents = self.vae(images)
+        latents = self.vae(images).sample
         noise = torch.randn_like(latents)
         steps = torch.randint(self.scheduler.config.num_train_timesteps, (latents.size(0), ), device=self.device)
         noisy_images = self.scheduler.add_noise(latents, noise, steps)

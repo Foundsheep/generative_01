@@ -17,6 +17,7 @@ if str(diffusers_path) not in sys.path:
 print(f"========\n\t\t{sys.path}\n========")
     
 import training_part.diffusers.src.diffusers as diffusers
+
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint
 import torch
@@ -40,15 +41,16 @@ class SPRDiffusionModel(L.LightningModule):
         self.checkpoint_mode = checkpoint_mode
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1, gamma=0.99)
-        
+        self.vae = diffusers.AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="unet", torch_dtype=torch.float16).to(self.dive)
         
     def shared_step(self, batch, stage):
         images = batch[0]
         conditions = batch[1]
         
-        noise = torch.randn_like(images)
-        steps = torch.randint(self.scheduler.config.num_train_timesteps, (images.size(0), ), device=self.device)
-        noisy_images = self.scheduler.add_noise(images, noise, steps)
+        latents = self.vae(images)
+        noise = torch.randn_like(latents)
+        steps = torch.randint(self.scheduler.config.num_train_timesteps, (latents.size(0), ), device=self.device)
+        noisy_images = self.scheduler.add_noise(latents, noise, steps)
         unet_2d_outputs = self.model(noisy_images, steps, conditions)
         residual = unet_2d_outputs.sample
         

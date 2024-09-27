@@ -41,7 +41,7 @@ class SPRDiffusionModel(L.LightningModule):
         self.checkpoint_mode = checkpoint_mode
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1, gamma=0.99)
-        self.vae = diffusers.AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="vae", torch_dtype=torch.float16)
+        self.vae = diffusers.AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="vae", torch_dtype=torch.float)
         
     def shared_step(self, batch, stage):
         images = batch[0]

@@ -27,7 +27,7 @@ from utils.model_utils import get_scheduler
 
 
 class SPRDiffusionModel(L.LightningModule):
-    def __init__(self, lr, num_class_embeds, scheduler_name, checkpoint_monitor, checkpoint_mode):
+    def __init__(self, lr, num_class_embeds, scheduler_name, checkpoint_monitor, checkpoint_mode, use_vanilla=True):
         super().__init__()
         self.lr = lr
         self.num_class_embeds = num_class_embeds
@@ -39,6 +39,7 @@ class SPRDiffusionModel(L.LightningModule):
         self.scheduler = get_scheduler(scheduler_name)
         self.checkpoint_monitor = checkpoint_monitor
         self.checkpoint_mode = checkpoint_mode
+        self.use_vanilla = use_vanilla
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1, gamma=0.99)
         self.vae = diffusers.AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="vae", torch_dtype=torch.float)
@@ -49,10 +50,11 @@ class SPRDiffusionModel(L.LightningModule):
         images = batch[0]
         conditions = batch[1]
         
-        latents = self.vae(images).sample
-        noise = torch.randn_like(latents)
-        steps = torch.randint(self.scheduler.config.num_train_timesteps, (latents.size(0), ), device=self.device)
-        noisy_images = self.scheduler.add_noise(latents, noise, steps)
+        if not self.use_vanilla:
+            images = self.vae(images).sample
+        noise = torch.randn_like(images)
+        steps = torch.randint(self.scheduler.config.num_train_timesteps, (images.size(0), ), device=self.device)
+        noisy_images = self.scheduler.add_noise(images, noise, steps)
         unet_2d_outputs = self.model(noisy_images, steps, conditions)
         residual = unet_2d_outputs.sample
         
@@ -90,3 +92,11 @@ class SPRDiffusionModel(L.LightningModule):
         )
         
         return [checkpoint_save_last, checkpoint_save_top_loss]
+    
+    def encode_img(input_img):
+        # Single image -> single latent in a batch (so size 1, 4, 64, 64)
+        if len(input_img.shape)<4:
+            input_img = input_img.unsqueeze(0)
+        with torch.no_grad():
+            latent = self.vae.encode(input_img*2 - 1) # Note scaling
+        return 0.18215 * latent.latent_dist.sample()

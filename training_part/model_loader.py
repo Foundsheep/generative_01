@@ -42,9 +42,12 @@ class SPRDiffusionModel(L.LightningModule):
         self.use_vanilla = use_vanilla
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1, gamma=0.99)
-        self.vae = diffusers.AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="vae", torch_dtype=torch.float)
-        for param in self.vae.parameters():
-            param.requires_grad = False
+        if not self.use_vanilla:
+            self.vae = diffusers.AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="vae", torch_dtype=torch.float)
+            for param in self.vae.parameters():
+                param.requires_grad = False
+        else:
+            self.vae = None
     
     def shared_step(self, batch, stage):
         images = batch[0]
@@ -93,7 +96,7 @@ class SPRDiffusionModel(L.LightningModule):
         
         return [checkpoint_save_last, checkpoint_save_top_loss]
     
-    def encode_img(input_img):
+    def encode_img(self, input_img):
         # Single image -> single latent in a batch (so size 1, 4, 64, 64)
         if len(input_img.shape)<4:
             input_img = input_img.unsqueeze(0)

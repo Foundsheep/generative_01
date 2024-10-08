@@ -91,6 +91,7 @@ class SPRDiffusionModel(L.LightningModule):
             save_top_k=3,
             monitor=self.checkpoint_monitor,
             mode=self.checkpoint_mode,
+            every_n_epochs=1,
             filename="{epoch}-{step}-{train_loss:.4f}"
         )
         

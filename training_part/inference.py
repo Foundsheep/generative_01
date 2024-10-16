@@ -1,4 +1,6 @@
 import torch
+import numpy as np
+import random
 import lightning as L
 import datetime
 from PIL import Image
@@ -16,6 +18,14 @@ from pathlib import Path
 
 
 def main(args):
+    
+    # seed setting
+    seed = args.seed
+    torch.manual_seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    
+    # load a model
     unet = SPRDiffusionModel.load_from_checkpoint(
         args.checkpoint_path,
         lr=0.001,
@@ -31,7 +41,7 @@ def main(args):
     image = torch.randn((args.batch_size, 3, Config.RESIZED_HEIGHT, Config.RESIZED_WIDTH))
     image = image.to(Config.DEVICE)
     
-    # TODO: normalisation through util. 
+    # TODO: normalisation via util.py 
     # Now, there are multiple usages of this in data_loader.py and here
     num_plates = args.num_plates
     num_plates = (num_plates - Config.MEAN_NUM_PLATES) / Config.STD_NUM_PLATES

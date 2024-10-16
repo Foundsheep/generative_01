@@ -25,6 +25,7 @@ class Config():
     SCHEDULER_NAME = "DDPMScheduler"
     CHECKPOINT_MONITOR = "train_loss"
     CHECKPOINT_MODE = "min"
+    SEED = 622
     
     MEAN_NUM_PLATES = 2.5
     MEAN_TYPES = 0.5

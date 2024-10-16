@@ -19,6 +19,7 @@ def get_args():
     parser.add_argument("--num_class_embeds", type=int, default=Config.NUM_CLASS_EMBEDS)
     parser.add_argument("--checkpoint_monitor", type=str, default=Config.CHECKPOINT_MONITOR)
     parser.add_argument("--checkpoint_mode", type=str, default=Config.CHECKPOINT_MODE)
+    parser.add_argument("--seed", type=int, default=Config.SEED)
 
     # inference
     parser.add_argument("--checkpoint_path", type=str)

@@ -86,6 +86,11 @@ class SPRDiffusionModel(L.LightningModule):
             save_last=True,
             filename="{epoch}-{step}-{train_loss:.4f}_save_last"
         )
+
+        checkpoint_save_per_500 = ModelCheckpoint(
+            every_n_epochs=3,
+            filename="{epoch}-{step}-{train_loss:.4f}_save_per_500"
+        )
         
         checkpoint_save_top_loss = ModelCheckpoint(
             save_top_k=3,

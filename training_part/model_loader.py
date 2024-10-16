@@ -100,7 +100,7 @@ class SPRDiffusionModel(L.LightningModule):
             filename="{epoch}-{step}-{train_loss:.4f}"
         )
         
-        return [checkpoint_save_last, checkpoint_save_top_loss]
+        return [checkpoint_save_last, checkpoint_save_top_loss, checkpoint_save_per_500]
     
     def encode_img(self, input_img):
         # Single image -> single latent in a batch (so size 1, 4, 64, 64)

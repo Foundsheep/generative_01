@@ -167,3 +167,5 @@ cython_debug/
 /.virtual_documents
 
 /2024*
+
+*.ckpt

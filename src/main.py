@@ -6,6 +6,9 @@ from data_loader import SPRDiffusionDataModule
 from model_loader import SPRDiffusionModel
 from arg_parser import get_args
 
+import numpy as np
+import random
+
 import sys
 from pathlib import Path
 root = Path.cwd().absolute().parent
@@ -30,7 +33,7 @@ if str(utils_path) not in sys.path:
 
 print(f"========\n\t\t{sys.path}\n========")
 
-def main(args):
+def train(args):
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 
     print(".................................")
@@ -68,4 +71,13 @@ def main(args):
     print("DONE!!!!!!!!!!!!!")
 if __name__ == "__main__":
     args = get_args()
-    main(args)
+    
+    # for reproducibility
+    # TODO: check reproducibility
+    if args.seed:
+        seed = args.seed
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+        random.seed(seed)
+        
+    train(args)

@@ -1,4 +1,5 @@
-import training_part.diffusers.src.diffusers as diffusers
+import ..diffusers.src.diffusers as diffusers
+from torchmetrics.image.fid import FrechetInceptionDistance
 
 def get_scheduler(scheduler_name):
     scheduler = None
@@ -21,3 +22,14 @@ def get_scheduler(scheduler_name):
     # else:
     #     raise Exception, f"scheduler name should be given, but [{scheduler_name = }]"
     return scheduler
+
+
+def get_fid(fake_images, real_images):
+    fid = FrechetInceptionDistance(feature=2048)
+    fid.update(real_images, real=True)
+    fid.update(fake_images, real=False)
+    return fid.compute()
+
+
+def get_real_images():
+    pass

@@ -1,3 +1,6 @@
 [submodule "training_part/diffusers"]
 	path = training_part/diffusers
 	url = https://github.com/Foundsheep/diffusers
+[submodule "src/diffusers"]
+	path = src/diffusers
+	url = https://github.com/Foundsheep/diffusers

@@ -23,34 +23,72 @@ from lightning.pytorch.callbacks import ModelCheckpoint
 import torch
     
 from configs import Config
-from utils.model_utils import get_scheduler
+from utils import model_utils
 import random
 import numpy as np
+from tqdm import tqdm
 
 
 class SprDDPM(L.LightningModule):
-    def __init__(self, lr, num_class_embeds, scheduler_name, checkpoint_monitor, checkpoint_mode):
+    def __init__(
+        self, 
+        lr, 
+        num_class_embeds, 
+        scheduler_name,
+        checkpoint_monitor, 
+        checkpoint_mode, 
+        inference_batch_size=Config.INFERENCE_BATCH_SIZE,
+        inference_scheduler_name=Config.INFERENCE_SCHEDULER_NAME,
+        inference_c_1=Config.C1,
+        inference_c_2=Config.C2,
+        num_inference_steps=Config.NUM_INFERENCE_TIMESTEPS,
+        num_train_steps=Config.NUM_TRAIN_TIMESTEPS,
+        is_inherited=True,
+    ):
         super().__init__()
         self.lr = lr
         self.num_class_embeds = num_class_embeds
-        self.model = diffusers.models.UNet2DModel(
-            sample_size=(240, 320),
-            class_embed_type="vector",
-            num_class_embeds=self.num_class_embeds,
-        )
-        self.scheduler = get_scheduler(scheduler_name)
+        self.is_inherited = is_inherited
+        
+        if self.is_inherited:
+            self.model = diffusers.models.UNet2DModel(
+                sample_size=(240, 320),
+                class_embed_type="vector",
+                num_class_embeds=self.num_class_embeds,
+                in_channels=4,
+                out_channels=4,
+            )
+        else:
+            self.model = diffusers.models.UNet2DModel(
+                sample_size=(240, 320),
+                class_embed_type="vector",
+                num_class_embeds=self.num_class_embeds,
+            )
+        self.num_train_steps = num_train_steps
+        self.num_inference_steps = num_inference_steps
+        self.scheduler_name = scheduler_name
+        self.scheduler = model_utils.get_scheduler(self.scheduler_name)
+        
+        # set train timesteps
+        self.scheduler.set_timesteps(num_train_steps)
+        
+        self.inference_scheduler_name = inference_scheduler_name
+        self.inference_batch_size = inference_batch_size
         self.checkpoint_monitor = checkpoint_monitor
         self.checkpoint_mode = checkpoint_mode
         self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1, gamma=0.99)
+        self.inference_c_1 = inference_c_1
+        self.inference_c_2 = inference_c_2
     
     def shared_step(self, batch, stage):
         images = batch[0]
         conditions = batch[1]
-        
+                
         noise = torch.randn_like(images)
         steps = torch.randint(self.scheduler.config.num_train_timesteps, (images.size(0), ), device=self.device)
         noisy_images = self.scheduler.add_noise(images, noise, steps)
+        
         unet_2d_outputs = self.model(noisy_images, steps, conditions)
         residual = unet_2d_outputs.sample
         
@@ -78,11 +116,11 @@ class SprDDPM(L.LightningModule):
             filename="{epoch}-{step}-{train_loss:.4f}_save_last"
         )
 
-        checkpoint_save_per_500 = ModelCheckpoint(
-            save_top_k=-1,
-            every_n_epochs=500,
-            filename="{epoch}-{step}-{train_loss:.4f}_save_per_500"
-        )
+        # checkpoint_save_per_500 = ModelCheckpoint(
+        #     save_top_k=-1,
+        #     every_n_epochs=500,
+        #     filename="{epoch}-{step}-{train_loss:.4f}_save_per_500"
+        # )
         
         checkpoint_save_top_loss = ModelCheckpoint(
             save_top_k=3,
@@ -92,32 +130,80 @@ class SprDDPM(L.LightningModule):
             filename="{epoch}-{step}-{train_loss:.4f}"
         )
         
-        return [checkpoint_save_last, checkpoint_save_top_loss, checkpoint_save_per_500]
+        return [checkpoint_save_last, checkpoint_save_top_loss]
 
-    def predict_step(self):
-        pass
+    @torch.no_grad()
+    def forward(self):
+        # set scheduler
+        scheduler = model_utils.get_scheduler(self.inference_scheduler_name)
+        scheduler.set_timesteps(self.num_inference_steps)
         
+        # get z
+        white_noise = torch.randn((self.inference_batch_size, 4 if self.is_inherited else 3, Config.RESIZED_HEIGHT, Config.RESIZED_WIDTH))
+        white_noise = white_noise.to(Config.DEVICE)
+        
+        # prepare conditions
+
+        c1 = model_utils.normalise_to_minus_one_and_one(self.inference_c_1, Config.C1_MIN, Config.C1_MAX)
+        c2 = 0 if self.inference_c_2 == Config.TYPES else 1
+        c2 = model_utils.normalise_to_minus_one_and_one(c2, Config.C2_MIN, Config.C2_MAX)
+        
+        # batch conditions
+        conditions = torch.Tensor([[c1, c2]])
+        conditions = torch.concat([conditions] * self.inference_batch_size, axis=0)
+        conditions = conditions.to(Config.DEVICE)
+        
+        # inference loop
+        for t in tqdm(scheduler.timesteps):
+            t = t.to(Config.DEVICE)
+            outs = self.model(white_noise, t, conditions)
+            white_noise = scheduler.step(outs.sample, t, white_noise).prev_sample
+        
+        # TODO: log images
+        
+        if not self.is_inherited:
+            # save images
+            out = model_utils.normalise_to_zero_and_one_from_minus_one(white_noise)
+            model_utils.save_image(out)
+        
+        return white_noise
 
 class LDM(SprDDPM):
-    def __init__(self):
-        super().__init__()
-        self.vae = diffusers.AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4", subfolder="vae", torch_dtype=torch.float)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.vae = diffusers.AutoencoderKL.from_pretrained(
+            "CompVis/stable-diffusion-v1-4", 
+            subfolder="vae", 
+            torch_dtype=torch.float,
+        )
         for param in self.vae.parameters():
             param.requires_grad = False
         self.scaling_factor = 0.18215
         
     def shared_step(self, batch, stage):
-        images = batch[0]
-        batch[0] = self.encode_img(images)
-        
+        images = batch[0]        
+        batch[0] = self.encode_img(images) # reduce the size by the factor of 8 both sides
+                
         return super().shared_step(batch, stage)
     
+    @torch.no_grad()
+    def forward(self):
+        z = super().forward()
+        x = self.decode_latent(x)
+        
+        # save images
+        out = model_utils.normalise_to_zero_and_one_from_minus_one(x)
+        model_utils.save_image(out)
     
     @torch.no_grad()    
     def encode_img(self, input_img, is_scaling=False):
         # source 1: https://wandb.ai/capecape/ddpm_clouds/reports/Using-Stable-Diffusion-VAE-to-encode-satellite-images--VmlldzozNDA2OTgx
         # source 2: https://huggingface.co/blog/stable_diffusion#writing-your-own-inference-pipeline
-        # TODO: to use scaling or not depends on the original normalisation range of vae input...?
+        # TODO: to use scaling or not depends on the original normalisation range of the pre-trained vae input...?
+        #       or to match what is expected from the next model, unet, as an input range?
+        # source 3: https://forums.fast.ai/t/why-scaling-up-image-before-sending-to-vae/101370/4
+        # source 4: https://huggingface.co/blog/annotated-diffusion
+        # -----> it seems like in DDPM paper, it is assuming the input image to be ranged [-1, 1]
         
         # Single image -> single latent in a batch (so size 1, 4, 64, 64)
         if len(input_img.shape)<4:

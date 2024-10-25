@@ -20,12 +20,16 @@ def get_args():
     parser.add_argument("--checkpoint_monitor", type=str, default=Config.CHECKPOINT_MONITOR)
     parser.add_argument("--checkpoint_mode", type=str, default=Config.CHECKPOINT_MODE)
     parser.add_argument("--seed", type=int, default=Config.SEED)
+    parser.add_argument("--fast_dev_run", type=bool, default=False)
 
     # inference
     parser.add_argument("--checkpoint_path", type=str)
     parser.add_argument("--num_plates", type=int)
     parser.add_argument("--types", type=str, default=Config.TYPES)
+    parser.add_argument("--inference_scheduler_name", type=str, default=Config.INFERENCE_SCHEDULER_NAME)
+    parser.add_argument("--inference_batch_size", type=int, default=Config.INFERENCE_BATCH_SIZE)
 
     # both
     parser.add_argument("--scheduler_name", type=str, default=Config.SCHEDULER_NAME)
+    parser.add_argument("--predict", action=argparse.BooleanOptionalAction)
     return parser.parse_args()

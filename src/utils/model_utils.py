@@ -1,11 +1,3 @@
-import sys
-for p in sys.modules:
-    if "/generative_01/src" in p:
-        print(p)
-print("====")
-print(__name__)
-print("-----")
-
 from diffusers.src import diffusers
 from configs import Config
 

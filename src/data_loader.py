@@ -4,17 +4,6 @@ import torch
 import numpy as np
 from PIL import Image
 
-# import sys
-# from pathlib import Path
-
-# root = Path.cwd().absolute().parent
-# print(root)
-# training_part = root / "training_part"
-# if str(root) not in sys.path:
-#     sys.path.append(str(root))
-# if str(training_part) not in sys.path:
-#     sys.path.append(str(training_part))
-    
 from configs import Config
 from utils import model_utils
 

@@ -1,21 +1,3 @@
-# import sys
-# from pathlib import Path
-
-# root = Path.cwd().absolute().parent
-# print(root)
-# training_part = root / "training_part"
-# print(training_part)
-# if str(root) not in sys.path:
-#     sys.path.append(str(root))
-# if str(training_part) not in sys.path:
-#     sys.path.append(str(training_part))
-
-# diffusers_path = training_part / "diffusers"
-# print(diffusers_path)
-# if str(diffusers_path) not in sys.path:
-#     sys.path.append(str(diffusers_path))
-# print(f"========\n\t\t{sys.path}\n========")
-    
 import diffusers.src.diffusers as diffusers
 
 import lightning as L
@@ -168,7 +150,7 @@ class SprDDPM(L.LightningModule):
 
     def save_generated_image(self, batch_outs):
         # save images
-        outs = model_utils.normalise_to_zero_and_one_from_minus_one(white_noise)
+        outs = model_utils.normalise_to_zero_and_one_from_minus_one(batch_outs)
         outs = model_utils.resize_to_original_ratio(outs, Config.INFERENCE_HEIGHT, Config.INFERENCE_WIDTH)
         model_utils.save_image(outs)
 

@@ -1,3 +1,9 @@
+import sys
+print(sys.module)
+print("====")
+print(__name__)
+print("-----")
+
 from ..diffusers.src import diffusers
 from configs import Config
 

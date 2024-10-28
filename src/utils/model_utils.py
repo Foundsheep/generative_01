@@ -6,7 +6,7 @@ print("====")
 print(__name__)
 print("-----")
 
-from ..diffusers.src import diffusers
+from diffusers.src import diffusers
 from configs import Config
 
 from torchmetrics.image.fid import FrechetInceptionDistance

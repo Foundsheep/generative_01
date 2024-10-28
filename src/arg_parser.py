@@ -20,7 +20,7 @@ def get_args():
     parser.add_argument("--checkpoint_monitor", type=str, default=Config.CHECKPOINT_MONITOR)
     parser.add_argument("--checkpoint_mode", type=str, default=Config.CHECKPOINT_MODE)
     parser.add_argument("--seed", type=int, default=Config.SEED)
-    parser.add_argument("--fast_dev_run", type=bool, default=False)
+    parser.add_argument("--fast_dev_run", action=argparse.BooleanOptionalAction)
 
     # inference
     parser.add_argument("--checkpoint_path", type=str)

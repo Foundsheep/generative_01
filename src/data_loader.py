@@ -4,38 +4,41 @@ import torch
 import numpy as np
 from PIL import Image
 
-import sys
-from pathlib import Path
+# import sys
+# from pathlib import Path
 
-root = Path.cwd().absolute().parent
-print(root)
-training_part = root / "training_part"
-if str(root) not in sys.path:
-    sys.path.append(str(root))
-if str(training_part) not in sys.path:
-    sys.path.append(str(training_part))
+# root = Path.cwd().absolute().parent
+# print(root)
+# training_part = root / "training_part"
+# if str(root) not in sys.path:
+#     sys.path.append(str(root))
+# if str(training_part) not in sys.path:
+#     sys.path.append(str(training_part))
     
 from configs import Config
-from utils.image_utils import get_transforms
+from utils import model_utils
 
 
-
-class SPRDiffusionDataset(torch.utils.data.Dataset):
+class SprDS(torch.utils.data.Dataset):
     def __init__(self, hf_dataset_repo, is_train):
         super().__init__()
         self.ds = load_dataset(hf_dataset_repo)["train"]
-        self.transforms = get_transforms()
+        self.transforms = model_utils.get_transforms()
         self.is_train = is_train
         
     def __len__(self):
         return len(self.ds)
     
     def __getitem__(self, idx):
+        
+        # get data
         image = self.ds[idx]["image"]
         image = self._adjust_ratio_and_convert_to_numpy(image)
         num_plates = self.ds[idx]["num_plates"]
         types = self.ds[idx]["types"]
+        types = 0 if types == Config.TYPES else 1
         
+        # transform image
         if self.transforms:
             if self.is_train:
                 image = self.transforms["images"]["train"](image=image)["image"]
@@ -43,11 +46,13 @@ class SPRDiffusionDataset(torch.utils.data.Dataset):
                 image = self.transforms["images"]["val"](image=image)["image"]
         
         image = image.float()
+
+        # normalise conditions to [-1, 1]
+        num_plates = model_utils.normalise_to_minus_one_and_one(num_plates, Config.C1_MIN, Config.C1_MAX)
         num_plates = torch.Tensor([num_plates])
-        num_plates = (num_plates - Config.MEAN_NUM_PLATES) / Config.STD_NUM_PLATES
-        types = torch.Tensor([0] if types == "HM" else [1])
-        types = (types - Config.MEAN_TYPES) / Config.STD_TYPES
-        
+        types = model_utils.normalise_to_minus_one_and_one(types, Config.C2_MIN, Config.C2_MAX)
+        types = torch.Tensor([types])
+                
         conditions = torch.concat([num_plates, types], axis=0)
         return image, conditions
     
@@ -89,7 +94,7 @@ class SPRDiffusionDataset(torch.utils.data.Dataset):
         return img_new
         
 
-class SPRDiffusionDataModule(L.LightningDataModule):
+class SprDM(L.LightningDataModule):
     def __init__(self, hf_dataset_repo, batch_size, shuffle, dl_num_workers):
         super().__init__()
         self.hf_dataset_repo = hf_dataset_repo
@@ -102,18 +107,24 @@ class SPRDiffusionDataModule(L.LightningDataModule):
         
     def setup(self, stage):
         if stage == "fit":
-            self.ds_train = SPRDiffusionDataset(self.hf_dataset_repo, True)
+            self.ds_train = SprDS(self.hf_dataset_repo, True)
             
-        self.ds = SPRDiffusionDataset(self.hf_dataset_repo, True)
+        self.ds = SprDS(self.hf_dataset_repo, True)
         
     def train_dataloader(self):
         return torch.utils.data.DataLoader(
             self.ds_train, batch_size=self.batch_size,
             shuffle=self.shuffle, num_workers=self.dl_num_workers
         )
+    
+    def predict_dataloader(self):
+        return torch.utils.data.DataLoader(
+            self.ds, batch_size=self.batch_size,
+            shuffle=self.shuffle, num_workers=self.dl_num_workers
+        )
 
 if __name__ == "__main__":
-    spr_ds = SPRDiffusionDataset(Config.HF_DATASET_REPO, True)
+    spr_ds = SprDS(Config.HF_DATASET_REPO, True)
     dl = torch.utils.data.DataLoader(spr_ds, batch_size=5, shuffle=True, num_workers=2)
 
     d = next(iter(dl))

@@ -161,11 +161,12 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-/training_part/datasets
-/training_part/lightning_logs
+
+/src/lightning_logs
+/src/2024*
 /notebooks
 /.virtual_documents
 
 /2024*
-
+/training_part
 *.ckpt

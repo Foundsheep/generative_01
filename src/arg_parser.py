@@ -14,7 +14,7 @@ def get_args():
     parser.add_argument("--log_every_n_steps", type=int, default=Config.LOG_EVERY_N_STEPS)
     parser.add_argument("--train_log_folder", type=str, default=Config.TRAIN_LOG_FOLDER)
     parser.add_argument("--device", type=str, default=Config.DEVICE)
-    parser.add_argument("--device_num", type=int, default=Config.DEVICE_NUM)
+    parser.add_argument("--num_device", type=int, default=Config.NUM_DEVICE)
     parser.add_argument("--lr", type=float, default=Config.LR)
     parser.add_argument("--num_class_embeds", type=int, default=Config.NUM_CLASS_EMBEDS)
     parser.add_argument("--checkpoint_monitor", type=str, default=Config.CHECKPOINT_MONITOR)
@@ -32,4 +32,5 @@ def get_args():
     # both
     parser.add_argument("--scheduler_name", type=str, default=Config.SCHEDULER_NAME)
     parser.add_argument("--predict", action=argparse.BooleanOptionalAction)
+    parser.add_argument("--train", action=argparse.BooleanOptionalAction)
     return parser.parse_args()

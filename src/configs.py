@@ -10,6 +10,8 @@ class Config():
     # RESIZED_WIDTH = 320
     RESIZED_HEIGHT = 512
     RESIZED_WIDTH = 512
+    INFERENCE_HEIGHT = 480
+    INFERENCE_WIDTH = 640
 
     # train 
     HF_DATASET_REPO = "DJMOON/hm_spr_1_2"
@@ -21,7 +23,7 @@ class Config():
     LOG_EVERY_N_STEPS = 1
     TRAIN_LOG_FOLDER = str(Path(__file__).absolute().parent)
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    DEVICE_NUM = 2
+    NUM_DEVICE = 2
     LR = 0.001
     NUM_CLASS_EMBEDS = 2
     SCHEDULER_NAME = "DDPMScheduler"

@@ -40,10 +40,6 @@ torch.set_float32_matmul_precision('medium')
 
 def train(args):
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-
-    print(".................................")
-    print(f"The provided arguments are\n\t {args}")
-    print(".................................")
     
     model = LDM(
         lr=args.lr,
@@ -64,7 +60,7 @@ def train(args):
     
     trainer = L.Trainer(
         accelerator="gpu" if args.device == "cuda" else "cpu",
-        devices=args.device_num,
+        devices=args.num_device,
         max_epochs=args.max_epochs,
         log_every_n_steps=args.log_every_n_steps,
         default_root_dir=train_log_dir,
@@ -84,6 +80,7 @@ def predict(args):
         scheduler_name=args.inference_scheduler_name,
         checkpoint_monitor=args.checkpoint_monitor,
         checkpoint_mode=args.checkpoint_mode,
+        is_inherited=True,
     )
     
     # dm = SprDM(
@@ -99,10 +96,15 @@ def predict(args):
     #     deterministic=True,   
     # )
     # trainer.predict(model=model, datamodule=dm)
-    model()
+    out = model()
     
 if __name__ == "__main__":
     args = get_args()
+
+    print(".................................")
+    print(f"The provided arguments are\n\t {args}")
+    print(".................................")
+
     
     # for reproducibility
     # TODO: check reproducibility
@@ -112,7 +114,9 @@ if __name__ == "__main__":
         np.random.seed(seed)
         random.seed(seed)
     
-    if args.predict:
+    if args.predict and not args.train:
         predict(args)
-    else:
+    elif not args.predict and args.train:
         train(args)
+    else:
+        raise ValueError("either '--predict' or '--train' should be declared")

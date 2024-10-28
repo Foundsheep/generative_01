@@ -37,13 +37,13 @@ class SprDDPM(L.LightningModule):
         scheduler_name,
         checkpoint_monitor, 
         checkpoint_mode, 
+        is_inherited,
         inference_batch_size=Config.INFERENCE_BATCH_SIZE,
         inference_scheduler_name=Config.INFERENCE_SCHEDULER_NAME,
         inference_c_1=Config.C1,
         inference_c_2=Config.C2,
         num_inference_steps=Config.NUM_INFERENCE_TIMESTEPS,
         num_train_steps=Config.NUM_TRAIN_TIMESTEPS,
-        is_inherited=True,
     ):
         super().__init__()
         self.lr = lr
@@ -162,11 +162,15 @@ class SprDDPM(L.LightningModule):
         # TODO: log images
         
         if not self.is_inherited:
-            # save images
-            out = model_utils.normalise_to_zero_and_one_from_minus_one(white_noise)
-            model_utils.save_image(out)
-        
-        return white_noise
+            self.save_generated_image(white_noise)
+        else:
+            return white_noise
+
+    def save_generated_image(self, batch_outs):
+        # save images
+        outs = model_utils.normalise_to_zero_and_one_from_minus_one(white_noise)
+        outs = model_utils.resize_to_original_ratio(outs, Config.INFERENCE_HEIGHT, Config.INFERENCE_WIDTH)
+        model_utils.save_image(outs)
 
 class LDM(SprDDPM):
     def __init__(self, **kwargs):
@@ -189,11 +193,10 @@ class LDM(SprDDPM):
     @torch.no_grad()
     def forward(self):
         z = super().forward()
-        x = self.decode_latent(x)
+        x = self.decode_latent(z)
         
         # save images
-        out = model_utils.normalise_to_zero_and_one_from_minus_one(x)
-        model_utils.save_image(out)
+        self.save_generated_image(x)
     
     @torch.no_grad()    
     def encode_img(self, input_img, is_scaling=False):

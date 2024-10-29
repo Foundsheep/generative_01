@@ -223,10 +223,10 @@ class LDM(SprDDPM):
         print(f"torch.cuda.mem_get_info():\n{torch.cuda.mem_get_info()}")
         print("===============================")
 
-        # # cpu usage
-        # print("CPU usage in prediction process starts")
-        # scaled = scaled.to("cpu")
-        # self.vae.to("cpu")
-        # print(f"{self.vae.device = }, {scaled.device = }")
+        # cpu usage
+        print("CPU usage in prediction process starts")
+        scaled = scaled.to("cpu")
+        self.vae.to("cpu")
+        print(f"{self.vae.device = }, {scaled.device = }")
         
         return self.vae.decode(scaled).sample

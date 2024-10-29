@@ -30,7 +30,7 @@ def get_args():
     parser.add_argument("--inference_batch_size", type=int, default=Config.INFERENCE_BATCH_SIZE)
     parser.add_argument("--inference_height", type=int, default=Config.INFERENCE_HEIGHT)
     parser.add_argument("--inference_width", type=int, default=Config.INFERENCE_WIDTH)
-    parser.add_argument("--num_inference_step", type=int, default=Config.NUM_INFERENCE_TIMESTEPS)
+    parser.add_argument("--num_inference_step", type=int, default=Config.NUM_INFERENCE_STEPS)
 
     # both
     parser.add_argument("--scheduler_name", type=str, default=Config.SCHEDULER_NAME)

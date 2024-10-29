@@ -205,7 +205,7 @@ class LDM(SprDDPM):
         else:
             latent = self.vae.encode(input_img)
         # return self.scaling_factor * latent.latent_dist.sample()
-        return self.scaling_factor * latent
+        return self.scaling_factor * latent.latents
     
     @torch.no_grad()
     def decode_latent(self, latent):

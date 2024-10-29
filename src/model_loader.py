@@ -163,7 +163,8 @@ class LDM(SprDDPM):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.vae = diffusers.AutoencoderKL.from_pretrained(
-            "CompVis/stable-diffusion-v1-4", 
+            # "CompVis/stable-diffusion-v1-4",  # vae to be of about 83M params
+            "madebyollin/taesd" # vae to be of about 2M params
             subfolder="vae", 
             torch_dtype=torch.float,
         )
@@ -217,11 +218,11 @@ class LDM(SprDDPM):
         # gc.collect()
         # torch.cuda.empty_cache()
 
-        # cpu usage
-        print("===============================")
-        print("CPU usage in prediction process starts")
-        scaled = scaled.to("cpu")
-        self.vae.to("cpu")
-        print(f"{self.vae.device = }, {scaled.device = }")
+        # # cpu usage
+        # print("===============================")
+        # print("CPU usage in prediction process starts")
+        # scaled = scaled.to("cpu")
+        # self.vae.to("cpu")
+        # print(f"{self.vae.device = }, {scaled.device = }")
         
         return self.vae.decode(scaled).sample

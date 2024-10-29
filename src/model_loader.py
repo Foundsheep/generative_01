@@ -9,7 +9,7 @@ from utils import model_utils
 import random
 import numpy as np
 from tqdm import tqdm
-
+import gc
 
 class SprDDPM(L.LightningModule):
     # TODO: parameters to be received outside the class
@@ -208,4 +208,13 @@ class LDM(SprDDPM):
     @torch.no_grad()
     def decode_latent(self, latent):
         scaled = 1. / self.scaling_factor * latent
+        
+        # to reduce GPU memory used in prediction
+        # It used to throw an error of torch.cuda.OutOfMemoryError previously
+        # that tried to allocate 4.00 GiB, but failed
+        self.model.cpu()
+        del self.model, latent
+        gc.collect()
+        torch.cuda.empty_cache()
+        
         return self.vae.decode(scaled).sample

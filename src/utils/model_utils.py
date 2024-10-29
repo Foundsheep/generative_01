@@ -8,6 +8,7 @@ from pathlib import Path
 import datetime
 import numpy as np
 import torch
+from PIL import Image
 
 def get_scheduler(scheduler_name):
     scheduler = None

@@ -12,6 +12,7 @@ from tqdm import tqdm
 
 
 class SprDDPM(L.LightningModule):
+    # TODO: parameters to be received outside the class
     def __init__(
         self, 
         lr, 
@@ -20,6 +21,8 @@ class SprDDPM(L.LightningModule):
         checkpoint_monitor, 
         checkpoint_mode, 
         is_inherited,
+        inference_height,
+        inference_width,
         inference_batch_size=Config.INFERENCE_BATCH_SIZE,
         inference_scheduler_name=Config.INFERENCE_SCHEDULER_NAME,
         inference_c_1=Config.C1,
@@ -62,6 +65,8 @@ class SprDDPM(L.LightningModule):
         self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1, gamma=0.99)
         self.inference_c_1 = inference_c_1
         self.inference_c_2 = inference_c_2
+        self.inference_height = inference_height
+        self.inference_width = inference_width
     
     def shared_step(self, batch, stage):
         images = batch[0]
@@ -151,7 +156,7 @@ class SprDDPM(L.LightningModule):
     def save_generated_image(self, batch_outs):
         # save images
         outs = model_utils.normalise_to_zero_and_one_from_minus_one(batch_outs)
-        outs = model_utils.resize_to_original_ratio(outs, Config.INFERENCE_HEIGHT, Config.INFERENCE_WIDTH)
+        outs = model_utils.resize_to_original_ratio(outs, self.inference_height, self.inference_width)
         model_utils.save_image(outs)
 
 class LDM(SprDDPM):

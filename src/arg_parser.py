@@ -28,6 +28,8 @@ def get_args():
     parser.add_argument("--types", type=str, default=Config.TYPES)
     parser.add_argument("--inference_scheduler_name", type=str, default=Config.INFERENCE_SCHEDULER_NAME)
     parser.add_argument("--inference_batch_size", type=int, default=Config.INFERENCE_BATCH_SIZE)
+    parser.add_argument("--inference_height", type=int, default=Config.INFERENCE_HEIGHT)
+    parser.add_argument("--inference_width", type=int, default=Config.INFERENCE_WIDTH)
 
     # both
     parser.add_argument("--scheduler_name", type=str, default=Config.SCHEDULER_NAME)

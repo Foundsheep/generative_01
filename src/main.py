@@ -22,6 +22,8 @@ def train(args):
         checkpoint_monitor=args.checkpoint_monitor,
         checkpoint_mode=args.checkpoint_mode,
         is_inherited=True,
+        inference_height=args.inference_height,
+        inference_width=args.inference_width,
     )
     dm = SprDM(
         hf_dataset_repo=args.hf_dataset_repo,
@@ -55,6 +57,8 @@ def predict(args):
         checkpoint_monitor=args.checkpoint_monitor,
         checkpoint_mode=args.checkpoint_mode,
         is_inherited=True,
+        inference_height=args.inference_height,
+        inference_width=args.inference_width,
     )
     
     # dm = SprDM(

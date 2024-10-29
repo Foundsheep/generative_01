@@ -162,7 +162,7 @@ class SprDDPM(L.LightningModule):
 class LDM(SprDDPM):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.vae = diffusers.AutoencoderKL.from_pretrained(
+        self.vae = diffusers.AutoencoderTiny.from_pretrained(
             # "CompVis/stable-diffusion-v1-4",  # vae to be of about 83M params
             "madebyollin/taesd", # vae to be of about 2M params
             # subfolder="vae", 

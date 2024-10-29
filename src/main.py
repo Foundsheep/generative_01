@@ -59,6 +59,7 @@ def predict(args):
         is_inherited=True,
         inference_height=args.inference_height,
         inference_width=args.inference_width,
+        inference_batch_size=args.inference_batch_size,
     )
     
     # dm = SprDM(

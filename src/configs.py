@@ -45,7 +45,7 @@ class Config():
     
     # inference
     TYPES = "HM"
-    NUM_INFERENCE_TIMESTEPS = 100
+    NUM_INFERENCE_STEPS = 1000
     INFERENCE_BATCH_SIZE = 2
     INFERENCE_SCHEDULER_NAME = "DDPMScheduler"
     C1 = 3

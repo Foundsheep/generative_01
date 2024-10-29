@@ -27,7 +27,7 @@ class SprDDPM(L.LightningModule):
         inference_scheduler_name=Config.INFERENCE_SCHEDULER_NAME,
         inference_c_1=Config.C1,
         inference_c_2=Config.C2,
-        num_inference_steps=Config.NUM_INFERENCE_TIMESTEPS,
+        num_inference_steps=Config.NUM_INFERENCE_STEPS,
         num_train_steps=Config.NUM_TRAIN_TIMESTEPS,
     ):
         super().__init__()

@@ -211,16 +211,19 @@ class LDM(SprDDPM):
     def decode_latent(self, latent):
         scaled = 1. / self.scaling_factor * latent
         
-        # # to reduce GPU memory used in prediction
-        # # It used to throw an error of torch.cuda.OutOfMemoryError previously
-        # # that tried to allocate 4.00 GiB, but failed
-        # self.model.cpu()
-        # del self.model, latent
-        # gc.collect()
-        # torch.cuda.empty_cache()
+        # to reduce GPU memory used in prediction
+        # It used to throw an error of torch.cuda.OutOfMemoryError previously
+        # that tried to allocate 4.00 GiB, but failed
+        print("===============================")
+        print(f"torch.cuda.mem_get_info():\n{torch.cuda.mem_get_info()}")
+        self.model.cpu()
+        del self.model, latent
+        gc.collect()
+        torch.cuda.empty_cache()
+        print(f"torch.cuda.mem_get_info():\n{torch.cuda.mem_get_info()}")
+        print("===============================")
 
         # # cpu usage
-        # print("===============================")
         # print("CPU usage in prediction process starts")
         # scaled = scaled.to("cpu")
         # self.vae.to("cpu")

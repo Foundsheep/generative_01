@@ -165,7 +165,7 @@ class LDM(SprDDPM):
         self.vae = diffusers.AutoencoderKL.from_pretrained(
             # "CompVis/stable-diffusion-v1-4",  # vae to be of about 83M params
             "madebyollin/taesd", # vae to be of about 2M params
-            subfolder="vae", 
+            # subfolder="vae", 
             torch_dtype=torch.float,
         )
         for param in self.vae.parameters():

@@ -195,6 +195,7 @@ class LDM(SprDDPM):
         # source 3: https://forums.fast.ai/t/why-scaling-up-image-before-sending-to-vae/101370/4
         # source 4: https://huggingface.co/blog/annotated-diffusion
         # -----> it seems like in DDPM paper, it is assuming the input image to be ranged [-1, 1]
+        # source 5: https://github.com/huggingface/diffusers/issues/437#issuecomment-1241827515
         
         # Single image -> single latent in a batch (so size 1, 4, 64, 64)
         if len(input_img.shape)<4:
@@ -205,11 +206,13 @@ class LDM(SprDDPM):
         else:
             latent = self.vae.encode(input_img)
         # return self.scaling_factor * latent.latent_dist.sample()
-        return self.scaling_factor * latent.latents
+        # return self.scaling_factor * latent.latents
+        return latent.latents
     
     @torch.no_grad()
     def decode_latent(self, latent):
-        scaled = 1. / self.scaling_factor * latent
+        # scaled = 1. / self.scaling_factor * latent
+        scaled = latent
         
         # to reduce GPU memory used in prediction
         # It used to throw an error of torch.cuda.OutOfMemoryError previously

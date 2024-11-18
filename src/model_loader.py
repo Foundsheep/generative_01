@@ -36,7 +36,7 @@ class SprDDPM(L.LightningModule):
         self.is_inherited = is_inherited
         
         if self.is_inherited:
-            self.model = diffusers.models.UNet2DModel(
+            self.unet = diffusers.models.UNet2DModel(
                 sample_size=(240, 320),
                 class_embed_type="vector",
                 num_class_embeds=self.num_class_embeds,
@@ -44,7 +44,7 @@ class SprDDPM(L.LightningModule):
                 out_channels=4,
             )
         else:
-            self.model = diffusers.models.UNet2DModel(
+            self.unet = diffusers.models.UNet2DModel(
                 sample_size=(240, 320),
                 class_embed_type="vector",
                 num_class_embeds=self.num_class_embeds,
@@ -76,7 +76,7 @@ class SprDDPM(L.LightningModule):
         steps = torch.randint(self.scheduler.config.num_train_timesteps, (images.size(0), ), device=self.device)
         noisy_images = self.scheduler.add_noise(images, noise, steps)
         
-        unet_2d_outputs = self.model(noisy_images, steps, conditions)
+        unet_2d_outputs = self.unet(noisy_images, steps, conditions)
         residual = unet_2d_outputs.sample
         
         loss = torch.nn.functional.mse_loss(residual, noise)
@@ -140,10 +140,13 @@ class SprDDPM(L.LightningModule):
         conditions = torch.concat([conditions] * self.inference_batch_size, axis=0)
         conditions = conditions.to(Config.DEVICE)
         
+        print(conditions)
+        
         # inference loop
         for t in tqdm(scheduler.timesteps):
+            print(f"t....... : {t}")
             t = t.to(Config.DEVICE)
-            outs = self.model(white_noise, t, conditions)
+            outs = self.unet(white_noise, t, conditions)
             white_noise = scheduler.step(outs.sample, t, white_noise).prev_sample
         
         # TODO: log images
@@ -214,17 +217,17 @@ class LDM(SprDDPM):
         # scaled = 1. / self.scaling_factor * latent
         scaled = latent
         
-        # to reduce GPU memory used in prediction
-        # It used to throw an error of torch.cuda.OutOfMemoryError previously
-        # that tried to allocate 4.00 GiB, but failed
-        print("===============================")
-        print(f"torch.cuda.mem_get_info():\n{torch.cuda.mem_get_info()}")
-        self.model.cpu()
-        del self.model, latent
-        gc.collect()
-        torch.cuda.empty_cache()
-        print(f"torch.cuda.mem_get_info():\n{torch.cuda.mem_get_info()}")
-        print("===============================")
+        # # to reduce GPU memory used in prediction
+        # # It used to throw an error of torch.cuda.OutOfMemoryError previously
+        # # that tried to allocate 4.00 GiB, but failed
+        # print("===============================")
+        # print(f"torch.cuda.mem_get_info():\n{torch.cuda.mem_get_info()}")
+        # self.unet.cpu()
+        # del self.unet, latent
+        # gc.collect()
+        # torch.cuda.empty_cache()
+        # print(f"torch.cuda.mem_get_info():\n{torch.cuda.mem_get_info()}")
+        # print("===============================")
 
         # cpu usage
         print("CPU usage in prediction process starts")

@@ -36,12 +36,17 @@ class SprDDPM(L.LightningModule):
         self.is_inherited = is_inherited
         
         if self.is_inherited:
-            self.unet = diffusers.models.UNet2DModel(
+            # self.unet = diffusers.models.UNet2DModel(
+            #     sample_size=(240, 320),
+            #     class_embed_type="vector",
+            #     num_class_embeds=self.num_class_embeds,
+            #     in_channels=4,
+            #     out_channels=4,
+            # )
+            self.unet = diffusers.models.UNet2dModel(
                 sample_size=(240, 320),
-                class_embed_type="vector",
-                num_class_embeds=self.num_class_embeds,
                 in_channels=4,
-                out_channels=4,
+                out_channels=4
             )
         else:
             self.unet = diffusers.models.UNet2DModel(
@@ -76,7 +81,8 @@ class SprDDPM(L.LightningModule):
         steps = torch.randint(self.scheduler.config.num_train_timesteps, (images.size(0), ), device=self.device)
         noisy_images = self.scheduler.add_noise(images, noise, steps)
         
-        unet_2d_outputs = self.unet(noisy_images, steps, conditions)
+        # unet_2d_outputs = self.unet(noisy_images, steps, conditions)
+        unet_2d_outputs = self.unet(noisy_images, steps)
         residual = unet_2d_outputs.sample
         
         loss = torch.nn.functional.mse_loss(residual, noise)
@@ -129,24 +135,24 @@ class SprDDPM(L.LightningModule):
         white_noise = torch.randn((self.inference_batch_size, 4 if self.is_inherited else 3, Config.RESIZED_HEIGHT, Config.RESIZED_WIDTH))
         white_noise = white_noise.to(Config.DEVICE)
         
-        # prepare conditions
-
-        c1 = model_utils.normalise_to_minus_one_and_one(self.inference_c_1, Config.C1_MIN, Config.C1_MAX)
-        c2 = 0 if self.inference_c_2 == Config.TYPES else 1
-        c2 = model_utils.normalise_to_minus_one_and_one(c2, Config.C2_MIN, Config.C2_MAX)
+        # # prepare conditions
+        # c1 = model_utils.normalise_to_minus_one_and_one(self.inference_c_1, Config.C1_MIN, Config.C1_MAX)
+        # c2 = 0 if self.inference_c_2 == Config.TYPES else 1
+        # c2 = model_utils.normalise_to_minus_one_and_one(c2, Config.C2_MIN, Config.C2_MAX)
         
-        # batch conditions
-        conditions = torch.Tensor([[c1, c2]])
-        conditions = torch.concat([conditions] * self.inference_batch_size, axis=0)
-        conditions = conditions.to(Config.DEVICE)
+        # # batch conditions
+        # conditions = torch.Tensor([[c1, c2]])
+        # conditions = torch.concat([conditions] * self.inference_batch_size, axis=0)
+        # conditions = conditions.to(Config.DEVICE)
         
-        print(conditions)
+        # print(conditions)
         
         # inference loop
         for t in tqdm(scheduler.timesteps):
             print(f"t....... : {t}")
             t = t.to(Config.DEVICE)
-            outs = self.unet(white_noise, t, conditions)
+            # outs = self.unet(white_noise, t, conditions)
+            outs = self.unet(white_noise, t)
             white_noise = scheduler.step(outs.sample, t, white_noise).prev_sample
         
         # TODO: log images

@@ -43,7 +43,7 @@ class SprDDPM(L.LightningModule):
             #     in_channels=4,
             #     out_channels=4,
             # )
-            self.unet = diffusers.models.UNet2dModel(
+            self.unet = diffusers.models.UNet2DModel(
                 sample_size=(240, 320),
                 in_channels=4,
                 out_channels=4
